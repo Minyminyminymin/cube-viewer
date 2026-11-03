@@ -69,12 +69,13 @@ tr.now td{background:var(--hl)}
   <span class="ctl">Color <span class="seg" id="color"></span></span>
 </div>
 <div class="legend" id="legend"></div>
+<p class="meta" style="margin:0 0 8px">Click a session card (or use Detail session below) to open that session’s trials in the detail panel.</p>
 <div class="grid" id="grid"></div>
 
 <section class="panel">
   <div class="ph">
     <h2 id="dh"></h2>
-    <span class="ctl">Detail trial <span class="seg" id="dtrial"></span></span>
+    <span style="display:flex;flex-wrap:wrap;gap:8px 16px"><label class="ctl">Detail session <select id="dsess"></select></label><span class="ctl">Detail trial <span class="seg" id="dtrial"></span></span></span>
   </div>
   <div class="two">
     <div>
@@ -181,7 +182,9 @@ function render(){
   S.forEach((s,idx)=>{const c=document.createElement("div");c.className="card"+(idx===st.sel?" sel":"");
     const m=trialsOf(s).map(t=>t.mean),mm=m.length?(m.reduce((a,b)=>a+b,0)/m.length).toFixed(1)+" mm":"excluded";
     c.innerHTML=`<div class="h"><span><b>Session ${s.s}</b> · ${s.date.slice(4,6)}/${s.date.slice(6)}</span><span>${mm}</span></div><canvas></canvas>`;
-    c.onclick=()=>{st.sel=idx;render();};G.appendChild(c);drawPanel(c.querySelector("canvas"),s);});
+    c.onclick=()=>{st.sel=idx;render();document.querySelector(".panel").scrollIntoView({behavior:"smooth",block:"start"});};G.appendChild(c);drawPanel(c.querySelector("canvas"),s);});
+  const ds=document.getElementById("dsess");ds.innerHTML=S.map((x,k)=>`<option value="${k}">Session ${x.s} · ${x.date.slice(4,6)}/${x.date.slice(6)}</option>`).join("");ds.value=st.sel;
+  ds.onchange=()=>{st.sel=+ds.value;render();};
   const s=S[st.sel];
   const avail=s.trials.map(t=>t.i);if(!avail.includes(st.dtrial))st.dtrial=avail[0];
   seg("dtrial",avail.map(i=>[i,"Trial "+i]),"dtrial",openDetail);
